@@ -70,7 +70,7 @@ def main() -> None:
         st.subheader("Acceleration")
         st.write(f"Engine: **{ACCELERATION.engine}**")
         st.caption(ACCELERATION.note)
-        
+
         benchmark_path = ROOT / "benchmark_result.txt"
         if benchmark_path.exists():
             st.caption("Last acceleration benchmark:")
@@ -78,7 +78,7 @@ def main() -> None:
         else:
             st.caption("Run `python scripts/benchmark_acceleration.py` to generate acceleration evidence.")
 
-        data_path = Path("data")
+        data_path = ROOT / "data"
         if not data_path.exists():
             st.warning("Sample data is missing. Run `python scripts/generate_sample_data.py`.")
 

@@ -51,9 +51,12 @@ This project uses two or more requested layers:
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+pip install -e .
 python scripts/generate_sample_data.py
 streamlit run app.py
 ```
+
+`pip install -e .` installs the `pantry_pulse` package (from `src/`) in editable mode using the existing `pyproject.toml`. This makes `import pantry_pulse` work from any working directory or IDE/debugger without manual `sys.path` edits — the `scripts/` entry points already add `src/` to `sys.path` themselves as a fallback, but the editable install is the more robust setup.
 
 ## Vercel Deployment
 
@@ -78,6 +81,7 @@ On macOS/Linux:
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+pip install -e .
 python scripts/generate_sample_data.py
 streamlit run app.py
 ```

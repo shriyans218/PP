@@ -1,0 +1,11 @@
+{
+  "name": "pantry-pulse",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo Static dashboard is ready in public",
+    "generate:data": "python scripts/build_static_dashboard.py",
+    "start": "python -m http.server 3000 -d public",
+    "deploy": "vercel --prod"
+  }
+}

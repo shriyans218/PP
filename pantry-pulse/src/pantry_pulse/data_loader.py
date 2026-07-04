@@ -47,7 +47,14 @@ def _read_bigquery_table(name: str) -> pd.DataFrame:
 
     client = bigquery.Client(project=project)
     table = f"`{project}.{dataset}.{name}`"
-    return client.query(f"SELECT * FROM {table}").to_dataframe()
+    df = client.query(f"SELECT * FROM {table}").to_dataframe()
+    if "date" in df.columns:
+        # BigQuery DATE columns can come back as a `dbdate` extension dtype
+        # (via db-dtypes) instead of datetime64[ns]. Normalize so downstream
+        # code (df["date"].dt.dayofweek, date arithmetic in forecasting.py)
+        # behaves identically whether data came from CSV or BigQuery.
+        df["date"] = pd.to_datetime(df["date"])
+    return df
 
 
 def load_tables(use_bigquery: bool = False) -> dict[str, pd.DataFrame]:

@@ -2,6 +2,7 @@
 
 __all__ = [
     "acceleration",
+    "cloud",
     "data_loader",
     "features",
     "forecasting",

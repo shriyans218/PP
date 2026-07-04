@@ -96,20 +96,21 @@ When `cudf.pandas` is available, the pipeline imports it before pandas work begi
 
 ## Google Cloud Setup
 
-1. Create a Cloud Storage bucket.
-2. Upload the CSV files from `data/`.
-3. Create BigQuery tables using `sql/create_tables.sql`.
-4. Load Cloud Storage CSVs into the BigQuery tables.
-5. Create analytical views with `sql/create_views.sql`.
-6. Configure `.streamlit/secrets.toml` or environment variables:
+export GCP_PROJECT="your-project-id"
+export BQ_DATASET="pantry_pulse"
 
-```toml
-GCP_PROJECT = "your-project-id"
-BQ_DATASET = "pantry_pulse"
-USE_BIGQUERY = false
-```
+# 1. Create dataset + empty tables
+bq query --use_legacy_sql=false < sql/create_tables.sql
 
-Set `USE_BIGQUERY = true` after your tables exist.
+# 2. Load the CSVs into BigQuery (real data, not just schema)
+python scripts/load_bigquery.py
+
+# 3. Create the analytics view
+bq query --use_legacy_sql=false < sql/create_views.sql
+
+# 4. Point the app at BigQuery
+export USE_BIGQUERY=true
+streamlit run app.py
 
 ## Project Structure
 

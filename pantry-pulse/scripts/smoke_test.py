@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
 from pantry_pulse.data_loader import load_tables
 from pantry_pulse.features import build_daily_features, build_inventory_risk
 from pantry_pulse.forecasting import make_forecast

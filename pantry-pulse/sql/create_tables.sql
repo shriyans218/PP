@@ -1,20 +1,20 @@
-CREATE SCHEMA IF NOT EXISTS `YOUR_PROJECT.pantry_pulse`;
+CREATE SCHEMA IF NOT EXISTS `pantry-pulse-501417.pantry_pulse`;
 
-CREATE OR REPLACE TABLE `YOUR_PROJECT.pantry_pulse.visits` (
+CREATE OR REPLACE TABLE `pantry-pulse-501417.pantry_pulse.visits` (
   date DATE,
   household_id INT64,
   has_senior INT64,
   children INT64
 );
 
-CREATE OR REPLACE TABLE `YOUR_PROJECT.pantry_pulse.inventory` (
+CREATE OR REPLACE TABLE `pantry-pulse-501417.pantry_pulse.inventory` (
   date DATE,
   category STRING,
   stock_kg FLOAT64,
   is_low_stock INT64
 );
 
-CREATE OR REPLACE TABLE `YOUR_PROJECT.pantry_pulse.donations` (
+CREATE OR REPLACE TABLE `pantry-pulse-501417.pantry_pulse.donations` (
   date DATE,
   donation_id STRING,
   category STRING,
@@ -22,13 +22,13 @@ CREATE OR REPLACE TABLE `YOUR_PROJECT.pantry_pulse.donations` (
   source STRING
 );
 
-CREATE OR REPLACE TABLE `YOUR_PROJECT.pantry_pulse.weather` (
+CREATE OR REPLACE TABLE `pantry-pulse-501417.pantry_pulse.weather` (
   date DATE,
   temperature_c FLOAT64,
   rain_mm FLOAT64
 );
 
-CREATE OR REPLACE TABLE `YOUR_PROJECT.pantry_pulse.events` (
+CREATE OR REPLACE TABLE `pantry-pulse-501417.pantry_pulse.events` (
   date DATE,
   event_name STRING,
   demand_pressure FLOAT64

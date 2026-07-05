@@ -4,12 +4,15 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "data/**"
-      - "sql/**"
+      - "pantry-pulse/data/**"
+      - "pantry-pulse/sql/**"
 
 jobs:
   load-bigquery:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pantry-pulse
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

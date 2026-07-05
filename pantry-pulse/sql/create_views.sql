@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW `YOUR_PROJECT.pantry_pulse.daily_operations_vw` AS
+CREATE OR REPLACE VIEW `pantry-pulse-501417.pantry_pulse.daily_operations_vw` AS
 WITH daily_visits AS (
   SELECT
     date,
@@ -6,7 +6,7 @@ WITH daily_visits AS (
     COUNT(*) AS household_visits,
     SUM(has_senior) AS senior_households,
     SUM(children) AS children_served
-  FROM `YOUR_PROJECT.pantry_pulse.visits`
+  FROM `pantry-pulse-501417.pantry_pulse.visits`
   GROUP BY date
 ),
 daily_inventory AS (
@@ -14,7 +14,7 @@ daily_inventory AS (
     date,
     SUM(stock_kg) AS total_stock_kg,
     SUM(is_low_stock) AS low_stock_items
-  FROM `YOUR_PROJECT.pantry_pulse.inventory`
+  FROM `pantry-pulse-501417.pantry_pulse.inventory`
   GROUP BY date
 ),
 daily_donations AS (
@@ -22,7 +22,7 @@ daily_donations AS (
     date,
     SUM(quantity_kg) AS donation_kg,
     COUNT(*) AS donation_events
-  FROM `YOUR_PROJECT.pantry_pulse.donations`
+  FROM `pantry-pulse-501417.pantry_pulse.donations`
   GROUP BY date
 ),
 daily_events AS (
@@ -30,7 +30,7 @@ daily_events AS (
     date,
     COUNT(*) AS event_count,
     SUM(demand_pressure) AS event_pressure
-  FROM `YOUR_PROJECT.pantry_pulse.events`
+  FROM `pantry-pulse-501417.pantry_pulse.events`
   GROUP BY date
 )
 SELECT
@@ -48,7 +48,7 @@ SELECT
   COALESCE(e.event_count, 0) AS event_count,
   COALESCE(e.event_pressure, 0) AS event_pressure
 FROM daily_visits v
-LEFT JOIN `YOUR_PROJECT.pantry_pulse.weather` w USING (date)
+LEFT JOIN `pantry-pulse-501417.pantry_pulse.weather` w USING (date)
 LEFT JOIN daily_inventory i USING (date)
 LEFT JOIN daily_donations d USING (date)
 LEFT JOIN daily_events e USING (date);

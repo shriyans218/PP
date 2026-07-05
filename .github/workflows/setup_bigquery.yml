@@ -50,7 +50,7 @@ jobs:
       - name: Verify row counts
         run: |
           bq query --project_id=${{ secrets.GCP_PROJECT_ID }} --use_legacy_sql=false \
-            "SELECT 'visits' AS tbl, COUNT(*) AS rows FROM \`${{ secrets.GCP_PROJECT_ID }}.${{ secrets.BQ_DATASET }}.visits\`
+            "SELECT 'visits' AS tbl, COUNT(*) AS row_count FROM \`${{ secrets.GCP_PROJECT_ID }}.${{ secrets.BQ_DATASET }}.visits\`
              UNION ALL
              SELECT 'inventory', COUNT(*) FROM \`${{ secrets.GCP_PROJECT_ID }}.${{ secrets.BQ_DATASET }}.inventory\`
              UNION ALL

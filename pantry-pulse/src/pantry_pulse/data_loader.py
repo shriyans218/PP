@@ -31,6 +31,29 @@ def _read_local_csv(name: str, data_dir: Path = DATA_DIR) -> pd.DataFrame:
     return pd.read_csv(path, parse_dates=["date"])
 
 
+def _make_bigquery_client(bigquery, project: str):
+    """Build a BigQuery client.
+
+    On Streamlit Cloud there are no ambient gcloud credentials, so we look
+    for a service account block in st.secrets (set via the Streamlit Cloud
+    Secrets UI, never committed to the repo). Locally, if st.secrets isn't
+    available or doesn't have that block, fall back to whatever default
+    application credentials are available.
+    """
+    try:
+        import streamlit as st
+        from google.oauth2 import service_account
+
+        if "gcp_service_account" in st.secrets:
+            credentials = service_account.Credentials.from_service_account_info(
+                dict(st.secrets["gcp_service_account"])
+            )
+            return bigquery.Client(project=project, credentials=credentials)
+    except Exception:
+        pass
+    return bigquery.Client(project=project)
+
+
 def _read_bigquery_table(name: str) -> pd.DataFrame:
     try:
         from google.cloud import bigquery
@@ -45,14 +68,16 @@ def _read_bigquery_table(name: str) -> pd.DataFrame:
     if not project:
         raise DataSourceError("GCP_PROJECT must be set when BigQuery mode is enabled.")
 
-    client = bigquery.Client(project=project)
-    table = f"`{project}.{dataset}.{name}`"
-    df = client.query(f"SELECT * FROM {table}").to_dataframe()
+    try:
+        client = _make_bigquery_client(bigquery, project)
+        table = f"`{project}.{dataset}.{name}`"
+        df = client.query(f"SELECT * FROM {table}").to_dataframe()
+    except Exception as exc:
+        raise DataSourceError(
+            f"BigQuery query for `{name}` failed: {exc}"
+        ) from exc
+
     if "date" in df.columns:
-        # BigQuery DATE columns can come back as a `dbdate` extension dtype
-        # (via db-dtypes) instead of datetime64[ns]. Normalize so downstream
-        # code (df["date"].dt.dayofweek, date arithmetic in forecasting.py)
-        # behaves identically whether data came from CSV or BigQuery.
         df["date"] = pd.to_datetime(df["date"])
     return df
 

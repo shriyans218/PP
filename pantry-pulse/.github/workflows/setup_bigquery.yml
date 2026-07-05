@@ -1,0 +1,58 @@
+name: Setup BigQuery (create tables + load data)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "data/**"
+      - "sql/**"
+
+jobs:
+  load-bigquery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK (gcloud + bq)
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies for the loader script
+        run: pip install google-cloud-bigquery pandas db-dtypes
+
+      - name: Create dataset and tables
+        run: bq query --project_id=${{ secrets.GCP_PROJECT_ID }} --use_legacy_sql=false < sql/create_tables.sql
+
+      - name: Load CSVs into BigQuery
+        env:
+          GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+          BQ_DATASET: ${{ secrets.BQ_DATASET }}
+        run: python scripts/load_bigquery.py
+
+      - name: Create analytics view
+        run: bq query --project_id=${{ secrets.GCP_PROJECT_ID }} --use_legacy_sql=false < sql/create_views.sql
+
+      - name: Verify row counts
+        run: |
+          bq query --project_id=${{ secrets.GCP_PROJECT_ID }} --use_legacy_sql=false \
+            "SELECT 'visits' AS tbl, COUNT(*) AS rows FROM \`${{ secrets.GCP_PROJECT_ID }}.${{ secrets.BQ_DATASET }}.visits\`
+             UNION ALL
+             SELECT 'inventory', COUNT(*) FROM \`${{ secrets.GCP_PROJECT_ID }}.${{ secrets.BQ_DATASET }}.inventory\`
+             UNION ALL
+             SELECT 'donations', COUNT(*) FROM \`${{ secrets.GCP_PROJECT_ID }}.${{ secrets.BQ_DATASET }}.donations\`
+             UNION ALL
+             SELECT 'weather', COUNT(*) FROM \`${{ secrets.GCP_PROJECT_ID }}.${{ secrets.BQ_DATASET }}.weather\`
+             UNION ALL
+             SELECT 'events', COUNT(*) FROM \`${{ secrets.GCP_PROJECT_ID }}.${{ secrets.BQ_DATASET }}.events\`"
